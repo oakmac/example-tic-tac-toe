@@ -100,7 +100,7 @@ function buildSquare (boxId, contents) {
   if (contents === null) {
     contents = ''
   }
-  return '<div class="square" id="box' + boxId + '">' + contents + '</div>'
+  return `<div class="square ${contents}" id="box${boxId}">${contents}</div>`
 }
 
 function buildRow (squares) {
@@ -177,7 +177,7 @@ let renderCount = 0
 
 function renderGame () {
   renderCount++
-  console.info('Rendering game now! Render #' + renderCount)
+  console.info('Rendering game now - #' + renderCount)
   containerEl.innerHTML = buildGame(theGame)
 }
 
@@ -239,7 +239,7 @@ function clickContainer (evt) {
 }
 
 function addEvents () {
-  console.info('Adding DOM events now')
+  console.info('Adding DOM events')
   containerEl.addEventListener('click', clickContainer)
 }
 
@@ -248,7 +248,7 @@ function addEvents () {
 // -----------------------------------------------------------------------------
 
 function init () {
-  console.info('Initializing tic-tac-toe now!')
+  console.info('Initializing tic-tac-toe!')
   containerEl = byId('container')
   addEvents()
   renderGame()
