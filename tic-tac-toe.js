@@ -65,16 +65,16 @@ function buildRow (squares) {
 
 function buildBoard (board) {
   const row1 = [{id: 0, contents: board[0]},
-                {id: 1, contents: board[1]},
-                {id: 2, contents: board[2]}]
+    {id: 1, contents: board[1]},
+    {id: 2, contents: board[2]}]
 
   const row2 = [{id: 3, contents: board[3]},
-                {id: 4, contents: board[4]},
-                {id: 5, contents: board[5]}]
+    {id: 4, contents: board[4]},
+    {id: 5, contents: board[5]}]
 
   const row3 = [{id: 6, contents: board[6]},
-                {id: 7, contents: board[7]},
-                {id: 8, contents: board[8]}]
+    {id: 7, contents: board[7]},
+    {id: 8, contents: board[8]}]
 
   return '<div class="board">' +
      buildRow(row1) +
@@ -139,7 +139,7 @@ function clickSquare (boxId) {
   takeTurn(theGame.playerTurn, boxId)
 }
 
-function clickContainer(evt) {
+function clickContainer (evt) {
   const targetEl = evt.target
   // defensive
   if (!targetEl) return
@@ -161,7 +161,7 @@ function addEvents () {
 // Init
 // -----------------------------------------------------------------------------
 
-function init() {
+function init () {
   console.info('Initializing tic-tac-toe now!')
   containerEl = byId('container')
   addEvents()
