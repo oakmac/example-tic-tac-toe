@@ -2,9 +2,37 @@
 // Game State + Logic
 // -----------------------------------------------------------------------------
 
-// "let" indicates that this variable is STATEFUL
-// STATEFUL means "changes over time"
-let theGame = {
+function checkCoords (board, player, coords) {
+  return (player + player + player) === (board[coords[0]] + board[coords[1]] + board[coords[2]])
+}
+
+const winningCoords = [
+  [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+  [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+  [0, 4, 8], [2, 4, 6] // diagonals
+]
+
+function checkWinner (board) {
+  for (let i = 0; i < winningCoords.length; i++) {
+    if (checkCoords(board, 'O', winningCoords[i])) {
+      return {
+        coords: winningCoords[i],
+        player: 'O'
+      }
+    } else if (checkCoords(board, 'X', winningCoords[i])) {
+      return {
+        coords: winningCoords[i],
+        player: 'X'
+      }
+    }
+  }
+
+  // TODO: handle tie condition
+
+  return false
+}
+
+const initialGameState = {
   playerTurn: 'X',
   board: [
     null, null, null,
@@ -12,11 +40,24 @@ let theGame = {
     null, null, null
   ],
   winner: null
-  // winCoords: [[1, 0], [1, 1], [1, 2]]
+}
+
+// "let" indicates that this variable is STATEFUL
+// STATEFUL means "changes over time"
+let theGame = deepCopy(initialGameState)
+
+function resetGame () {
+  theGame = deepCopy(initialGameState)
+  renderGame()
 }
 
 function takeTurn (player, boxId) {
   // defensive
+  if (theGame.winner) {
+    console.error('Game is over.')
+    return
+  }
+
   if (theGame.playerTurn !== player) {
     console.error('It is ' + theGame.playerTurn + 's turn to play.')
     return
@@ -35,7 +76,11 @@ function takeTurn (player, boxId) {
   theGame.board[boxId] = player
   theGame.playerTurn = player === 'X' ? 'O' : 'X'
 
-  // TODO: check if there is a winner
+  // check if there is a winner
+  const winner = checkWinner(theGame.board)
+  if (winner) {
+    theGame.winner = winner
+  }
 
   renderGame()
 }
@@ -83,10 +128,24 @@ function buildBoard (board) {
      '</div>'
 }
 
+function buildWinnerBanner (winner) {
+  // TODO: you could show the winning coordinates here
+  //       or on the board
+  return '<h2>We have a winner! ' + winner.player + '</h2>' +
+    '<button id=resetGameBtn>Reset Game</button>'
+}
+
 function buildGame (game) {
-  return '<h1>Tic Tac Toe</h1>' +
-         buildPlayerTurn(game.playerTurn) +
-         buildBoard(game.board)
+  let html = '<h1>Tic Tac Toe</h1>'
+
+  if (game.winner) {
+    html += buildWinnerBanner(game.winner)
+  }
+
+  html += buildPlayerTurn(game.playerTurn) +
+          buildBoard(game.board)
+
+  return html
 }
 
 // -----------------------------------------------------------------------------
@@ -109,6 +168,10 @@ function renderGame () {
 
 function byId (id) {
   return document.getElementById(id)
+}
+
+function deepCopy (x) {
+  return JSON.parse(JSON.stringify(x))
 }
 
 // -----------------------------------------------------------------------------
@@ -149,6 +212,10 @@ function clickContainer (evt) {
     const idWithoutBox = elId.replace('box', '')
     const boxIdNumber = parseInt(idWithoutBox, 10)
     clickSquare(boxIdNumber)
+  }
+
+  if (targetEl.id === 'resetGameBtn') {
+    resetGame()
   }
 }
 
