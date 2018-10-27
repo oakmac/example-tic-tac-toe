@@ -127,10 +127,12 @@ function buildBoard (board) {
     {id: 7, contents: board[7]},
     {id: 8, contents: board[8]}]
 
-  return '<div class="board">' +
+  return '<div class="board-container">' +
+     '<div class="board">' +
      buildRow(row1) +
      buildRow(row2) +
      buildRow(row3) +
+     '</div>' +
      '</div>'
 }
 
@@ -222,8 +224,8 @@ function clickContainer (evt) {
 
   if (targetEl.classList.contains('square')) {
     const elId = targetEl.id
-    const idWithoutBox = elId.replace('box', '')
-    const boxIdNumber = parseInt(idWithoutBox, 10)
+    const idWithoutBoxString = elId.replace('box', '')
+    const boxIdNumber = parseInt(idWithoutBoxString, 10)
     clickSquare(boxIdNumber)
   }
 
