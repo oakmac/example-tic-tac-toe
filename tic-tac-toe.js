@@ -1,8 +1,48 @@
-function byId (id) {
-  return document.getElementById(id)
+// -----------------------------------------------------------------------------
+// Game State + Logic
+// -----------------------------------------------------------------------------
+
+// "let" indicates that this variable is STATEFUL
+// STATEFUL means "changes over time"
+let theGame = {
+  playerTurn: 'X',
+  board: [
+    null, null, null,
+    null, null, null,
+    null, null, null
+  ],
+  winner: null
+  // winCoords: [[1, 0], [1, 1], [1, 2]]
 }
 
-const containerEl = byId('container')
+function takeTurn (player, boxId) {
+  // defensive
+  if (theGame.playerTurn !== player) {
+    console.error('It is ' + theGame.playerTurn + 's turn to play.')
+    return
+  }
+
+  if (!isValidBoxId(boxId)) {
+    console.error('Invalid boxId passed to takeTurn function: ' + boxId)
+    return
+  }
+
+  if (theGame.board[boxId] !== null) {
+    console.error('boxId ' + boxId + ' already has a piece')
+    return
+  }
+
+  theGame.board[boxId] = player
+  theGame.playerTurn = player === 'X' ? 'O' : 'X'
+
+  // TODO: check if there is a winner
+
+  renderGame()
+}
+
+// -----------------------------------------------------------------------------
+// HTML
+// -----------------------------------------------------------------------------
 
 function buildPlayerTurn (playerTurn) {
   return '<div>Current turn: ' + playerTurn + '</div>'
@@ -49,18 +89,46 @@ function buildGame (game) {
          buildBoard(game.board)
 }
 
-// "let" indicates that this variable is STATEFUL
-// STATEFUL means "changes over time"
-let theGame = {
-  playerTurn: 'X',
-  board: [
-    null, null, null,
-    null, null, null,
-    null, null, null
-  ],
-  winner: null
-  // winCoords: [[1, 0], [1, 1], [1, 2]]
+// -----------------------------------------------------------------------------
+// Rendering
+// -----------------------------------------------------------------------------
+
+let containerEl = null
+
+let renderCount = 0
+
+function renderGame () {
+  renderCount++
+  console.info('Rendering game now! Render #' + renderCount)
+  containerEl.innerHTML = buildGame(theGame)
 }
+
+// -----------------------------------------------------------------------------
+// Util
+// -----------------------------------------------------------------------------
+
+function byId (id) {
+  return document.getElementById(id)
+}
+
+// -----------------------------------------------------------------------------
+// Validation
+// -----------------------------------------------------------------------------
+
+function isValidPlayer (player) {
+  return player === 'O' ||
+         player === 'X'
+}
+
+function isValidBoxId (boxId) {
+  return typeof boxId === 'number' &&
+         boxId >= 0 &&
+         boxId <= 8
+}
+
+// -----------------------------------------------------------------------------
+// Events
+// -----------------------------------------------------------------------------
 
 function clickSquare (boxId) {
   if (!isValidBoxId(boxId)) {
@@ -89,53 +157,14 @@ function addEvents () {
   containerEl.addEventListener('click', clickContainer)
 }
 
+// -----------------------------------------------------------------------------
+// Init
+// -----------------------------------------------------------------------------
+
 function init() {
   console.info('Initializing tic-tac-toe now!')
+  containerEl = byId('container')
   addEvents()
-  renderGame()
-}
-
-let renderCount = 0
-
-function renderGame () {
-  renderCount++
-  console.info('Rendering game now! Render #' + renderCount)
-  containerEl.innerHTML = buildGame(theGame)
-}
-
-function isValidPlayer (player) {
-  return player === 'O' ||
-         player === 'X'
-}
-
-function isValidBoxId (boxId) {
-  return typeof boxId === 'number' &&
-         boxId >= 0 &&
-         boxId <= 8
-}
-
-function takeTurn (player, boxId) {
-  // defensive
-  if (theGame.playerTurn !== player) {
-    console.error('It is ' + theGame.playerTurn + 's turn to play.')
-    return
-  }
-
-  if (!isValidBoxId(boxId)) {
-    console.error('Invalid boxId passed to takeTurn function: ' + boxId)
-    return
-  }
-
-  if (theGame.board[boxId] !== null) {
-    console.error('boxId ' + boxId + ' already has a piece')
-    return
-  }
-
-  theGame.board[boxId] = player
-  theGame.playerTurn = player === 'X' ? 'O' : 'X'
-
-  // TODO: check if there is a winner
-
   renderGame()
 }
 
