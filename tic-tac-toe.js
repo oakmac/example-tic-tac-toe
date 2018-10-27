@@ -12,7 +12,15 @@ const winningCoords = [
   [0, 4, 8], [2, 4, 6] // diagonals
 ]
 
+// returns a win object with player + coords
+// or returns the string 'tie'
+// or false if the game is not over
 function checkWinner (board) {
+  // check for a tie
+  if (board.join('').length === 9) {
+    return 'tie'
+  }
+
   for (let i = 0; i < winningCoords.length; i++) {
     if (checkCoords(board, 'O', winningCoords[i])) {
       return {
@@ -26,8 +34,6 @@ function checkWinner (board) {
       }
     }
   }
-
-  // TODO: handle tie condition
 
   return false
 }
@@ -128,6 +134,11 @@ function buildBoard (board) {
      '</div>'
 }
 
+function buildTieBanner () {
+  return '<h2>Tie game!</h2>' +
+    '<button id=resetGameBtn>Reset Game</button>'
+}
+
 function buildWinnerBanner (winner) {
   // TODO: you could show the winning coordinates here
   //       or on the board
@@ -138,7 +149,9 @@ function buildWinnerBanner (winner) {
 function buildGame (game) {
   let html = '<h1>Tic Tac Toe</h1>'
 
-  if (game.winner) {
+  if (game.winner === 'tie') {
+    html += buildTieBanner()
+  } else if (game.winner) {
     html += buildWinnerBanner(game.winner)
   }
 
@@ -178,10 +191,10 @@ function deepCopy (x) {
 // Validation
 // -----------------------------------------------------------------------------
 
-function isValidPlayer (player) {
-  return player === 'O' ||
-         player === 'X'
-}
+// function isValidPlayer (player) {
+//   return player === 'O' ||
+//          player === 'X'
+// }
 
 function isValidBoxId (boxId) {
   return typeof boxId === 'number' &&
