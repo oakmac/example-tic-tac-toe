@@ -1,4 +1,16 @@
 // -----------------------------------------------------------------------------
+// Util
+// -----------------------------------------------------------------------------
+
+function byId (id) {
+  return document.getElementById(id)
+}
+
+// function deepCopy (x) {
+//   return JSON.parse(JSON.stringify(x))
+// }
+
+// -----------------------------------------------------------------------------
 // Game State + Logic
 // -----------------------------------------------------------------------------
 
@@ -16,11 +28,7 @@ const winningCoords = [
 // or returns the string 'tie'
 // or null if the game is not over
 function checkWinner (board) {
-  // check for a tie
-  if (board.join('').length === 9) {
-    return 'tie'
-  }
-
+  // check for winning conditions
   for (let i = 0; i < winningCoords.length; i++) {
     if (checkCoords(board, 'O', winningCoords[i])) {
       return {
@@ -35,32 +43,45 @@ function checkWinner (board) {
     }
   }
 
+  // check for a tie
+  if (board.join('').length === 9) {
+    return 'tie'
+  }
+
   return null
 }
 
-const initialGameState = {
-  playerTurn: 'X',
-  board: [
-    null, null, null,
-    null, null, null,
-    null, null, null
-  ],
-  winner: null
+// returns an initial game state
+function newGameState (initialPlayer) {
+  // pick a random side to start if no initial value is passed in
+  if (!isValidPlayer(initialPlayer)) {
+    initialPlayer = Math.random() >= 0.5 ? 'X' : 'O'
+  }
+
+  return {
+    playerTurn: initialPlayer,
+    board: [
+      null, null, null,
+      null, null, null,
+      null, null, null
+    ],
+    winner: null
+  }
 }
 
 // "let" indicates that this variable is STATEFUL
 // STATEFUL means "changes over time"
-let theGame = deepCopy(initialGameState)
+let theGame = newGameState()
 
 function resetGame () {
-  theGame = deepCopy(initialGameState)
+  theGame = newGameState()
   renderGame()
 }
 
 function takeTurn (player, boxId) {
   // defensive
   if (theGame.winner) {
-    console.error('Game is over.')
+    console.error('Cannot take a turn; the game is over.')
     return
   }
 
@@ -92,10 +113,6 @@ function takeTurn (player, boxId) {
 // HTML
 // -----------------------------------------------------------------------------
 
-function buildPlayerTurn (playerTurn) {
-  return '<div>Current turn: ' + playerTurn + '</div>'
-}
-
 function buildSquare (boxId, contents) {
   if (contents === null) {
     contents = ''
@@ -112,17 +129,23 @@ function buildRow (squares) {
 }
 
 function buildBoard (board) {
-  const row1 = [{id: 0, contents: board[0]},
+  const row1 = [
+    {id: 0, contents: board[0]},
     {id: 1, contents: board[1]},
-    {id: 2, contents: board[2]}]
+    {id: 2, contents: board[2]}
+  ]
 
-  const row2 = [{id: 3, contents: board[3]},
+  const row2 = [
+    {id: 3, contents: board[3]},
     {id: 4, contents: board[4]},
-    {id: 5, contents: board[5]}]
+    {id: 5, contents: board[5]}
+  ]
 
-  const row3 = [{id: 6, contents: board[6]},
+  const row3 = [
+    {id: 6, contents: board[6]},
     {id: 7, contents: board[7]},
-    {id: 8, contents: board[8]}]
+    {id: 8, contents: board[8]}
+  ]
 
   return '<div class="board-container">' +
      '<div class="board">' +
@@ -133,31 +156,33 @@ function buildBoard (board) {
      '</div>'
 }
 
-function buildTieBanner () {
-  return `<div class="alert-wrapper">
-      <div class="alert alert-info" role="alert">
-        <h4 class="alert-heading">Tie game!</h4>
-        <button class="btn btn-primary" id=resetGameBtn>New Game</button>
-      </div>
+function buildPlayerTurn (playerTurn) {
+  return `
+    <div class="banner-wrapper turn-wrapper">
+      <span class="label">Current turn:</span>
+      <span class="current-turn ${playerTurn}">${playerTurn}</span>
     </div>`
 }
 
-function buildWinnerBanner (winner) {
-  return `<div class="alert-wrapper">
-      <div class="alert alert-success" role="alert">
-        <h4 class="alert-heading">${winner.player} wins!</h4>
+function buildGameOverBanner (msg, alertClass) {
+  return `
+    <div class="banner-wrapper">
+      <div class="alert ${alertClass}" role="alert">
+        <h2 class="alert-heading">${msg}</h2>
         <button class="btn btn-primary" id=resetGameBtn>New Game</button>
       </div>
     </div>`
 }
 
 function buildGame (game) {
-  let html = '<h1>Tic Tac Toe</h1>'
+  let html = '<h1 class="display-3">Tic Tac Toe</h1>'
 
   if (game.winner === 'tie') {
-    html += buildTieBanner()
-  } else if (game.winner) {
-    html += buildWinnerBanner(game.winner)
+    html += buildGameOverBanner('Tie game!', 'alert-dark')
+  } else if (game.winner && game.winner.player === 'X') {
+    html += buildGameOverBanner('X wins!', 'alert-success')
+  } else if (game.winner && game.winner.player === 'O') {
+    html += buildGameOverBanner('O wins!', 'alert-primary')
   } else {
     html += buildPlayerTurn(game.playerTurn)
   }
@@ -175,6 +200,7 @@ let containerEl = null
 
 let renderCount = 0
 
+// Converts theGame state into HTML and puts it into the DOM
 function renderGame () {
   renderCount++
   console.info('Rendering game now - #' + renderCount)
@@ -182,25 +208,13 @@ function renderGame () {
 }
 
 // -----------------------------------------------------------------------------
-// Util
-// -----------------------------------------------------------------------------
-
-function byId (id) {
-  return document.getElementById(id)
-}
-
-function deepCopy (x) {
-  return JSON.parse(JSON.stringify(x))
-}
-
-// -----------------------------------------------------------------------------
 // Validation
 // -----------------------------------------------------------------------------
 
-// function isValidPlayer (player) {
-//   return player === 'O' ||
-//          player === 'X'
-// }
+function isValidPlayer (player) {
+  return player === 'O' ||
+         player === 'X'
+}
 
 function isValidBoxId (boxId) {
   return typeof boxId === 'number' &&
@@ -213,6 +227,7 @@ function isValidBoxId (boxId) {
 // -----------------------------------------------------------------------------
 
 function clickSquare (boxId) {
+  // sanity check that the boxId is valid
   if (!isValidBoxId(boxId)) {
     console.error('Invalid boxId passed to clickSquare function: ' + boxId)
     return
