@@ -14,7 +14,7 @@ const winningCoords = [
 
 // returns a win object with player + coords
 // or returns the string 'tie'
-// or false if the game is not over
+// or null if the game is not over
 function checkWinner (board) {
   // check for a tie
   if (board.join('').length === 9) {
@@ -35,7 +35,7 @@ function checkWinner (board) {
     }
   }
 
-  return false
+  return null
 }
 
 const initialGameState = {
@@ -83,10 +83,7 @@ function takeTurn (player, boxId) {
   theGame.playerTurn = player === 'X' ? 'O' : 'X'
 
   // check if there is a winner
-  const winner = checkWinner(theGame.board)
-  if (winner) {
-    theGame.winner = winner
-  }
+  theGame.winner = checkWinner(theGame.board)
 
   renderGame()
 }
@@ -137,15 +134,21 @@ function buildBoard (board) {
 }
 
 function buildTieBanner () {
-  return '<h2>Tie game!</h2>' +
-    '<button id=resetGameBtn>Reset Game</button>'
+  return `<div class="alert-wrapper">
+      <div class="alert alert-info" role="alert">
+        <h4 class="alert-heading">Tie game!</h4>
+        <button class="btn btn-primary" id=resetGameBtn>New Game</button>
+      </div>
+    </div>`
 }
 
 function buildWinnerBanner (winner) {
-  // TODO: you could show the winning coordinates here
-  //       or on the board
-  return '<h2>We have a winner! ' + winner.player + '</h2>' +
-    '<button id=resetGameBtn>Reset Game</button>'
+  return `<div class="alert-wrapper">
+      <div class="alert alert-success" role="alert">
+        <h4 class="alert-heading">${winner.player} wins!</h4>
+        <button class="btn btn-primary" id=resetGameBtn>New Game</button>
+      </div>
+    </div>`
 }
 
 function buildGame (game) {
@@ -155,10 +158,11 @@ function buildGame (game) {
     html += buildTieBanner()
   } else if (game.winner) {
     html += buildWinnerBanner(game.winner)
+  } else {
+    html += buildPlayerTurn(game.playerTurn)
   }
 
-  html += buildPlayerTurn(game.playerTurn) +
-          buildBoard(game.board)
+  html += buildBoard(game.board)
 
   return html
 }
